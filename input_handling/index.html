@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        var circle = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 10,
+            speed: 0.05,
+            pressedKeys: [],
+            directions: {
+                "w": [0, -1],
+                "s": [0, 1],
+                "a": [-1, 0],
+                "d": [1, 0]
+            },
+
+            isKeyValid: (key) => {
+                return Object.keys(circle.directions).some(e => e == key);
+            }
+        };
+        var lastTimeStamp = 0;
+
+        function init() {
+            document.addEventListener("keydown", (e) => {
+                if (circle.isKeyValid(e.key)) {
+                    circle.pressedKeys[e.key] = true;
+                }
+            });
+
+            document.addEventListener("keyup", (e) => {
+                if (circle.isKeyValid(e.key)) {
+                    circle.pressedKeys[e.key] = false;
+                }
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop(timeStamp) {
+            var delta = timeStamp - lastTimeStamp;
+            lastTimeStamp = timeStamp;
+
+            update(delta);
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update(delta) {
+            Object.keys(circle.directions).filter(k => circle.pressedKeys[k]).forEach(k => {
+                let element = circle.directions[k];
+                circle.x += element[0] * circle.speed * delta;
+                circle.y += element[1] * circle.speed * delta;
+            });            
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
