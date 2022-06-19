@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas">
+
+    </canvas>
+
+    <script>
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        var oldTimeStamp;
+
+        function draw(timeStamp) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            var secondPassed = (timeStamp - oldTimeStamp) / 1000;
+            oldTimeStamp = timeStamp;
+
+            var fps = Math.round(1 / secondPassed);
+
+            let randomColor = Math.random() > 0.5 ? '#ff8080' : '#0099b0';
+            ctx.fillStyle = randomColor;
+            
+            ctx.fillRect(50, 50, 200, 100);
+
+            ctx.fillStyle = 'white';
+            ctx.font = '25px Arial';
+            ctx.fillStyle = 'black';
+            ctx.fillText("FPS: " + fps, 10, 30);
+            
+
+            requestAnimationFrame(draw);
+        }
+
+        requestAnimationFrame(draw);
+    </script>
+</body>
+
+</html>
