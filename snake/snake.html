@@ -21,6 +21,14 @@
 
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
+        var lastUpdateTimeStamp = 0;
+
+        const Direction = {
+            Up: "Up",
+            Down: "Down",
+            Left: "Left",
+            Right: "Right"
+        }
 
         class SnakeCell {
             constructor(x, y) {
@@ -29,9 +37,10 @@
             }
         }
 
-        class Snake {            
+        class Snake {
 
             constructor() {
+                this.direction = Direction.Down;
                 this.snakeCells = [];
 
                 for (let i = 0; i < 3; i++) {
@@ -39,7 +48,39 @@
                 }
             }
 
+            move() {
+                this.snakeCells.pop();
+                let head = { ...this.snakeCells[0] };
 
+                switch (this.direction) {
+                    case Direction.Up:
+                        head.y--;
+                        if (head.y == 0) {
+                            head.y = rowCount;
+                        }
+                        break;
+                    case Direction.Down:
+                        head.y++;
+                        if (head.y == rowCount) {
+                            head.y = 0;
+                        }
+                        break;
+                    case Direction.Left:
+                        head.x--;
+                        if (head.x == 0) {
+                            head.x = colCount;
+                        }
+                        break;
+                    case Direction.Right:
+                        head.x++;
+                        if (head.x == colCount) {
+                            head.x = 0;
+                        }
+                        break;
+                }
+
+                this.snakeCells.unshift(head);
+            }
         }
 
         var rowCount = 6;
@@ -52,6 +93,12 @@
         function loop(timeStamp) {
 
             draw();
+
+            if (timeStamp - lastUpdateTimeStamp > 400) {
+                lastUpdateTimeStamp = timeStamp;
+                update();
+            }
+
             requestAnimationFrame(loop);
         }
 
@@ -82,6 +129,10 @@
 
         function drawCell(x, y) {
             ctx.fillRect(x * cellSize + cellOffset, y * cellSize + cellOffset, cellSize - cellOffset, cellSize - cellOffset);
+        }
+
+        function update() {
+            snake.move();
         }
 
         requestAnimationFrame(loop);
