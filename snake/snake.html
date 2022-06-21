@@ -22,10 +22,32 @@
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
 
+        class SnakeCell {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        class Snake {            
+
+            constructor() {
+                this.snakeCells = [];
+
+                for (let i = 0; i < 3; i++) {
+                    this.snakeCells.push(new SnakeCell(i, 1));
+                }
+            }
+
+
+        }
+
         var rowCount = 6;
         var colCount = 9;
         var cellSize = 100;
-        var cellOffset = 1;        
+        var cellOffset = 1;
+
+        var snake = new Snake();
 
         function loop(timeStamp) {
 
@@ -38,15 +60,28 @@
 
             ctx.beginPath();
             drawMap();
+            drawSnake();
             ctx.fill();
         }
 
         function drawMap() {
             for (let row = 0; row < rowCount; row++) {
                 for (let col = 0; col < colCount; col++) {
-                    ctx.fillRect(col * cellSize + cellOffset, row * cellSize + cellOffset, cellSize - cellOffset, cellSize - cellOffset);
+                    ctx.fillStyle = "brown";
+                    drawCell(col, row);
                 }
             }
+        }
+
+        function drawSnake() {
+            snake.snakeCells.forEach(el => {
+                ctx.fillStyle = "green";
+                drawCell(el.x, el.y);
+            });
+        }
+
+        function drawCell(x, y) {
+            ctx.fillRect(x * cellSize + cellOffset, y * cellSize + cellOffset, cellSize - cellOffset, cellSize - cellOffset);
         }
 
         requestAnimationFrame(loop);
