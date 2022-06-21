@@ -24,10 +24,10 @@
         var lastUpdateTimeStamp = 0;
 
         const Direction = {
-            Up: "Up",
-            Down: "Down",
-            Left: "Left",
-            Right: "Right"
+            Up: "w",
+            Down: "s",
+            Left: "a",
+            Right: "d"
         }
 
         class SnakeCell {
@@ -90,6 +90,14 @@
 
         var snake = new Snake();
 
+        function init() {
+            document.addEventListener("keydown", (e) => {
+                if (Object.values(Direction).some(element => e.key == element)) {
+                    snake.direction = e.key;
+                }
+            });
+        }
+
         function loop(timeStamp) {
 
             draw();
@@ -135,6 +143,7 @@
             snake.move();
         }
 
+        init();
         requestAnimationFrame(loop);
     </script>
 </body>
