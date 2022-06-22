@@ -70,6 +70,10 @@
         class Snake {
 
             constructor() {
+                this.initSnake();
+            }
+
+            initSnake() {
                 this.direction = Direction.Down;
                 this.snakeCells = [];
 
@@ -79,7 +83,7 @@
             }
 
             move() {
-                this.snakeCells.pop();
+                let tail = this.snakeCells.pop();
                 let head = { ...this.snakeCells[0] };
 
                 switch (this.direction) {
@@ -110,6 +114,28 @@
                 }
 
                 this.snakeCells.unshift(head);
+
+                this.handleCollision(tail);
+            }
+
+            handleCollision(tail) {
+                let head = this.snakeCells[0];
+
+                if (apple.x == head.x && apple.y == head.y) {
+                    apple.seed();
+                    this.growUp(tail);
+                    return;
+                }
+
+                if (this.snakeCells.some((element, i) => element.x == head.x && element.y == head.y && i != 0)) {
+                    snake.initSnake();
+                }
+
+
+            }
+
+            growUp(tail) {
+                this.snakeCells.push(tail);
             }
         }
 
