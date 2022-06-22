@@ -11,6 +11,7 @@
     #canvas {
         display: block;
         margin: 0 auto;
+        background-color: rebeccapurple;
     }
 </style>
 
@@ -23,6 +24,7 @@
         var oldTimeStamp = 0;
         var gameObjects = [];
         var hero;
+        var spawner;
         var sprites = {};
         var image = new Image();
 
@@ -43,7 +45,7 @@
 
             draw(timespam) {
                 var sprite = this.spriteCollection.sprites[Math.floor(timespam % this.spriteCollection.sprites.length)];
-                ctx.drawImage(image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, sprite.width, sprite.height);
+                ctx.drawImage(image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, sprite.width / 2, sprite.height / 2);
             }
 
             update(delta) {
@@ -51,11 +53,11 @@
             }
 
             getWidth() {
-                return this.spriteCollection.sprites[0].width;
+                return this.spriteCollection.sprites[0].width / 2;
             }
 
             getHeight() {
-                return this.spriteCollection.sprites[0].height;
+                return this.spriteCollection.sprites[0].height / 2;
             }
 
             isColliding(anotherGameObject) {
@@ -105,8 +107,29 @@
         }
 
         class Enemy extends GameObject {
+            static speed = 0.01;
+            static direction = 1;
+            static yPosition = 0;
+            static ySpeed = 0.5;
+
             constructor(spriteCollection, x, y) {
                 super(spriteCollection, x, y);
+            }
+
+            update(delta) {
+                if (Enemy.yPosition > 0) {
+                    return;
+                }
+
+                this.x += Enemy.speed * delta * Enemy.direction;
+
+                if (this.x + this.getWidth() + 1 > canvas.width) {
+                    Enemy.direction = -1;
+                    Enemy.yPosition = 10;
+                } else if (this.x < 0) {
+                    Enemy.direction = 1;
+                    Enemy.yPosition = 10;
+                }
             }
         }
 
@@ -148,6 +171,42 @@
             }
         }
 
+        class EnemySpawner {
+
+            spawn() {
+                let offsetX = 40;
+                let offsetY = 10;
+                let marginX = 50;
+
+                let y = undefined;
+                for (let i = 2; i < 5; i++) {
+                    let name = 'enemy' + i;
+                    let enemySprites = sprites[name];
+
+                    let width = enemySprites.sprites[0].width / 2;
+                    let height = enemySprites.sprites[0].height / 2;
+
+                    let restSpace = canvas.width - marginX * 2 - (width + offsetX) * Math.floor((canvas.width - marginX * 2) / (width + offsetX));
+
+                    for (let j = 0; j < 2; j++) {
+                        if (i == 2 && j == 0) {
+                            continue;
+                        }
+                        if (y == undefined) {
+                            y = 0;
+                        } else {
+                            y += height + offsetY;
+                        }
+
+                        for (let x = marginX + restSpace / 2; x + width + offsetX < canvas.width; x += width + offsetX) {
+
+                            gameObjects.push(new Enemy(enemySprites, x, y));
+                        }
+                    }
+                }
+            }
+        }
+
         function loadSpritesMarkup() {
             return fetch("/res/spritesMarkup.json")
                 .then(res => res.json())
@@ -162,7 +221,8 @@
                     hero = new Hero(heroSprites, canvas.width / 2, canvas.height - heroSprites.sprites[0].height);
                     gameObjects.push(hero);
 
-                    gameObjects.push(new Enemy(sprites['enemy1'], canvas.width / 2, 100));
+                    spawner = new EnemySpawner();
+                    spawner.spawn();
 
                     document.onkeydown = ev => handleKeyPress(ev, true);
                     document.onkeyup = ev => handleKeyPress(ev, false);
@@ -195,16 +255,22 @@
             gameObjects.forEach(el => {
                 el.update(delta);
             });
+
+            if (Enemy.yPosition > 0) {
+                var enemies = gameObjects.filter(g => g instanceof Enemy);
+                enemies.forEach(e => e.y += Enemy.ySpeed * delta);
+                Enemy.yPosition--;
+            }
         }
 
         function handleKeyPress(ev, value) {
-            if (ev.key == 'a' || ev.key == 'd') {
+            if (ev.keyCode == 65 || ev.keyCode == 68) {
                 if (value) {
                     hero.direction = ev.key;
                 } else if (hero.direction == ev.key) {
                     hero.direction = '';
                 }
-            } else if (ev.key == ' ') {
+            } else if (ev.keyCode == 32) {
                 hero.isShooting = value;
             }
         }
