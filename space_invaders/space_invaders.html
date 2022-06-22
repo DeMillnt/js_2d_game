@@ -111,6 +111,10 @@
             static direction = 1;
             static yPosition = 0;
             static ySpeed = 0.5;
+            static minShootInterval = 300;
+            static maxShootInterval = 2000;
+            static lastShootTimeStamp = 0;
+            static currentInterval = 0;
 
             constructor(spriteCollection, x, y) {
                 super(spriteCollection, x, y);
@@ -131,6 +135,27 @@
                     Enemy.yPosition = 10;
                 }
             }
+
+            draw(timeSpan) {
+                super.draw(timeSpan);
+            }
+
+            canShoot() {
+                let x = this.x + this.getWidth() / 2;
+                let y = this.y + this.getHeight();
+
+                return gameObjects.filter(g => g instanceof Enemy &&
+                    g.id != this.id &&
+                    g.x < x &&
+                    g.x + g.getWidth() > x &&
+                    g.y > y).length == 0;
+            }
+
+            shoot() {
+                let x = this.x + this.getWidth() / 2;
+                let y = this.y + this.getHeight();
+                gameObjects.push(new Bullet(x, y, 1));
+            }
         }
 
         class Bullet extends GameObject {
@@ -149,9 +174,9 @@
 
             update(delta) {
                 this.y += this.yDirection * Bullet.speed * delta;
-                let enemies = gameObjects.filter(g => g instanceof Enemy);
+                let shootableObjects = gameObjects.filter(g => g instanceof Enemy || g instanceof Hero);
 
-                enemies.forEach(enemy => {
+                shootableObjects.forEach(enemy => {
                     if (enemy.isColliding(this)) {
                         deleteGameObject([enemy.id, this.id]);
                     }
@@ -261,6 +286,17 @@
                 enemies.forEach(e => e.y += Enemy.ySpeed * delta);
                 Enemy.yPosition--;
             }
+
+            if (Date.now() - Enemy.lastShootTimeStamp > Enemy.currentInterval) {
+                Enemy.currentInterval = Math.floor(Math.random() * (Enemy.maxShootInterval - Enemy.minShootInterval) + Enemy.minShootInterval);
+                let enemies = gameObjects.filter(g => g instanceof Enemy && g.canShoot());
+                let randomEnemyIndex = Math.floor(Math.random() * enemies.length);
+                let enemy = enemies[randomEnemyIndex];
+                if (!!enemy) {
+                    enemy.shoot();
+                    Enemy.lastShootTimeStamp = Date.now();
+                }
+            }
         }
 
         function handleKeyPress(ev, value) {
@@ -276,6 +312,9 @@
         }
 
         function deleteGameObject(ids) {
+            if (ids.some(id => id == hero.id)) {
+                console.log("game over");
+            }
             gameObjects = gameObjects.filter(g => !ids.some(id => g.id == id));
         }
 
