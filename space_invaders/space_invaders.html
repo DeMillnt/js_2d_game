@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #canvas {
+        display: block;
+        margin: 0 auto;
+    }
+</style>
+
+<body>
+    <canvas id="canvas" width="900" height="600"></canvas>
+
+    <script>
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+
+        var image = new Image();
+        image.src = "res/frames.png";
+        image.onload = () => {
+            var hero = new GameObject(new SpriteCollection([new Sprite(8, 152, 120, 150)]), 0, 0);
+            hero.draw(0);
+            //context.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+            // - sx is the horizontal offset into the source image
+            // - sy is the vertical offset into the source image
+            // - sWidth is the width of the source image
+            // - sHeight is the height of the source image
+            // - dx is the horizontal offset into the destination canvas
+            // - dy is the vertical offset into the destination canvas
+            // - dWidth is the width of the destination canvas
+            // - dHeight is the height of the destination canvas
+        }
+
+        class Sprite {
+            constructor(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+        }
+
+        class SpriteCollection {
+            constructor(sprites) {
+                this.sprites = sprites;
+            }
+
+            getSprite(timespam) {
+                return this.sprites[timespam % this.sprites.length];
+            }
+        }
+
+        class GameObject {
+            constructor(spriteCollection, x, y) {
+                this.spriteCollection = spriteCollection;
+                this.x = x;
+                this.y = y;
+            }
+
+            draw(timespan) {
+                var sprite = this.spriteCollection.getSprite(timespan);
+                ctx.drawImage(image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, sprite.width, sprite.height);
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>
