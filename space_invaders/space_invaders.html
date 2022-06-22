@@ -27,10 +27,18 @@
         var image = new Image();
 
         class GameObject {
+
+            static lastId = 0;
+            static getId() {
+                GameObject.lastId++;
+                return GameObject.lastId;
+            }
+
             constructor(spriteCollection, x, y) {
                 this.spriteCollection = spriteCollection;
                 this.x = x;
                 this.y = y;
+                this.id = GameObject.getId();
             }
 
             draw(timespam) {
@@ -48,6 +56,13 @@
 
             getHeight() {
                 return this.spriteCollection.sprites[0].height;
+            }
+
+            isColliding(anotherGameObject) {
+                return this.x < anotherGameObject.x + anotherGameObject.getWidth() &&
+                    this.x + this.getWidth() > anotherGameObject.x &&
+                    this.y < anotherGameObject.y + anotherGameObject.getHeight() &&
+                    this.getHeight() + this.y > anotherGameObject.y;
             }
         }
 
@@ -86,7 +101,12 @@
 
                     this.lastShootTimeStamp = currentTimeStamp;
                 }
+            }
+        }
 
+        class Enemy extends GameObject {
+            constructor(spriteCollection, x, y) {
+                super(spriteCollection, x, y);
             }
         }
 
@@ -106,6 +126,25 @@
 
             update(delta) {
                 this.y += this.yDirection * Bullet.speed * delta;
+                let enemies = gameObjects.filter(g => g instanceof Enemy);
+
+                enemies.forEach(enemy => {
+                    if (enemy.isColliding(this)) {
+                        deleteGameObject([enemy.id, this.id]);
+                    }
+                });
+
+                if (this.y < 0) {
+                    deleteGameObject([this.id]);
+                }
+            }
+
+            getWidth() {
+                return Bullet.width;
+            }
+
+            getHeight() {
+                return Bullet.height;
             }
         }
 
@@ -122,6 +161,8 @@
                     let heroSprites = sprites['hero'];
                     hero = new Hero(heroSprites, canvas.width / 2, canvas.height - heroSprites.sprites[0].height);
                     gameObjects.push(hero);
+
+                    gameObjects.push(new Enemy(sprites['enemy1'], canvas.width / 2, 100));
 
                     document.onkeydown = ev => handleKeyPress(ev, true);
                     document.onkeyup = ev => handleKeyPress(ev, false);
@@ -166,6 +207,10 @@
             } else if (ev.key == ' ') {
                 hero.isShooting = value;
             }
+        }
+
+        function deleteGameObject(ids) {
+            gameObjects = gameObjects.filter(g => !ids.some(id => g.id == id));
         }
 
         init();
