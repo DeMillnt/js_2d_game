@@ -27,6 +27,9 @@
         var spawner;
         var sprites = {};
         var image = new Image();
+        var deadLine = canvas.height;
+        var score = 0;
+        var scoreForEnemy = 10;
 
         class GameObject {
 
@@ -78,6 +81,7 @@
                 this.direction = 0;
                 this.isShooting = false;
                 this.lastShootTimeStamp = 0;
+                deadLine = canvas.height - this.getHeight() * 3;
             }
 
             update(delta) {
@@ -107,12 +111,12 @@
         }
 
         class Enemy extends GameObject {
-            static speed = 0.01;
+            static speed = 0.1;
             static direction = 1;
             static yPosition = 0;
-            static ySpeed = 0.5;
-            static minShootInterval = 300;
-            static maxShootInterval = 2000;
+            static ySpeed = 0.2;
+            static minShootInterval = 500;
+            static maxShootInterval = 3000;
             static lastShootTimeStamp = 0;
             static currentInterval = 0;
 
@@ -176,9 +180,9 @@
                 this.y += this.yDirection * Bullet.speed * delta;
                 let shootableObjects = gameObjects.filter(g => g instanceof Enemy || g instanceof Hero);
 
-                shootableObjects.forEach(enemy => {
-                    if (enemy.isColliding(this)) {
-                        deleteGameObject([enemy.id, this.id]);
+                shootableObjects.forEach(shootable => {
+                    if (shootable.isColliding(this)) {
+                        deleteGameObject([shootable.id, this.id]);
                     }
                 });
 
@@ -273,6 +277,8 @@
             gameObjects.forEach(el => {
                 el.draw(timeStamp / 500);
             });
+            ctx.font = '24px serif';
+            ctx.fillText(score, 12, 24);
             ctx.fill();
         }
 
@@ -297,6 +303,10 @@
                     Enemy.lastShootTimeStamp = Date.now();
                 }
             }
+
+            if (gameObjects.some(g => g instanceof Enemy && g.y > deadLine)) {
+                gameOver();
+            }
         }
 
         function handleKeyPress(ev, value) {
@@ -313,9 +323,25 @@
 
         function deleteGameObject(ids) {
             if (ids.some(id => id == hero.id)) {
-                console.log("game over");
+                gameOver();
             }
+
+            let enemies = gameObjects.filter(g => ids.some(id => g.id == id) && g instanceof Enemy);
+
+            score += enemies.length * scoreForEnemy;
+
             gameObjects = gameObjects.filter(g => !ids.some(id => g.id == id));
+
+            if (!gameObjects.some(g => g instanceof Enemy)) {
+                spawner.spawn();
+            }
+        }
+
+        function gameOver() {
+            alert("Game over. Your score " + score);
+            score = 0;
+            gameObjects = [];
+            init();
         }
 
         init();
