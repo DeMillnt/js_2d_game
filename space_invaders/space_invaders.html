@@ -20,22 +20,10 @@
     <script>
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
+        var gameObjects = [];
+        var sprites = {};
 
         var image = new Image();
-        image.src = "res/frames.png";
-        image.onload = () => {
-            var hero = new GameObject(new SpriteCollection([new Sprite(8, 152, 120, 150)]), 0, 0);
-            hero.draw(0);
-            //context.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
-            // - sx is the horizontal offset into the source image
-            // - sy is the vertical offset into the source image
-            // - sWidth is the width of the source image
-            // - sHeight is the height of the source image
-            // - dx is the horizontal offset into the destination canvas
-            // - dy is the vertical offset into the destination canvas
-            // - dWidth is the width of the destination canvas
-            // - dHeight is the height of the destination canvas
-        }
 
         class Sprite {
             constructor(x, y, width, height) {
@@ -50,10 +38,6 @@
             constructor(sprites) {
                 this.sprites = sprites;
             }
-
-            getSprite(timespam) {
-                return this.sprites[timespam % this.sprites.length];
-            }
         }
 
         class GameObject {
@@ -63,13 +47,31 @@
                 this.y = y;
             }
 
-            draw(timespan) {
-                var sprite = this.spriteCollection.getSprite(timespan);
+            draw(timespam) {
+                var sprite = this.spriteCollection.sprites[timespam % this.spriteCollection.sprites.length];
                 ctx.drawImage(image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, sprite.width, sprite.height);
             }
         }
 
+        function loadSpritesMarkup() {
+            return fetch("/res/spritesMarkup.json")
+                .then(res => res.json())
+                .then(res => sprites = res);
+        }
 
+        function init() {
+            image.src = "res/frames.png";
+            image.onload = () => {
+                loadSpritesMarkup().then(res => {
+                    gameObjects.push(new GameObject(sprites['hero'], 0, 0));
+                    gameObjects.push(new GameObject(sprites['enemy1'], 100, 100));
+                    gameObjects[0].draw(0);
+                    gameObjects[1].draw(0);
+                });
+            }
+        }
+
+        init();
     </script>
 </body>
 

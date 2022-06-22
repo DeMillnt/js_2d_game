@@ -1,0 +1,64 @@
+{
+    "hero": {
+        "sprites": [
+            {
+                "x": 8,
+                "y": 152,
+                "width": 120,
+                "height": 150
+            }
+        ]
+    },
+    "enemy1": {
+        "sprites": [
+            {
+                "x": 144,
+                "y": 160,
+                "width": 126,
+                "height": 70
+            }
+        ]
+    },
+    "enemy2": {
+        "sprites": [
+            {
+                "x": 32,
+                "y": 8,
+                "width": 40,
+                "height": 64
+            },
+            {
+                "x": 32,
+                "y": 80,
+                "width": 40,
+                "height": 64
+            }
+        ]
+    },
+    "enemy3": {
+        "sprites": [
+            {
+                "x": 80,
+                "y": 8,
+                "width": 94,
+                "height": 70
+            },
+            {
+                "x": 80,
+                "y": 80,
+                "width": 94,
+                "height": 70
+            }
+        ]
+    },
+    "enemy4": {
+        "sprites": [
+            {
+                "x": 184,
+                "y": 160,
+                "width": 271,
+                "height": 70
+            }
+        ]
+    }
+}
