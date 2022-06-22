@@ -30,6 +30,13 @@
             Right: "d"
         }
 
+        const InvalidDirection = {
+            "w": "s",
+            "s": "w",
+            "a": "d",
+            "d": "a"
+        }
+
         class Cell {
             constructor(x, y) {
                 this.x = x;
@@ -78,8 +85,8 @@
                 switch (this.direction) {
                     case Direction.Up:
                         head.y--;
-                        if (head.y == 0) {
-                            head.y = rowCount;
+                        if (head.y == -1) {
+                            head.y = rowCount - 1;
                         }
                         break;
                     case Direction.Down:
@@ -90,8 +97,8 @@
                         break;
                     case Direction.Left:
                         head.x--;
-                        if (head.x == 0) {
-                            head.x = colCount;
+                        if (head.x == -1) {
+                            head.x = colCount - 1;
                         }
                         break;
                     case Direction.Right:
@@ -116,7 +123,7 @@
 
         function init() {
             document.addEventListener("keydown", (e) => {
-                if (Object.values(Direction).some(element => e.key == element)) {
+                if (Object.keys(InvalidDirection).some(el => e.key == el) && InvalidDirection[e.key] != snake.direction) {
                     snake.direction = e.key;
                 }
             });
