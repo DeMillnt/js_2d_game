@@ -20,7 +20,9 @@
     <script>
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
+        var oldTimeStamp = 0;
         var gameObjects = [];
+        var hero;
         var sprites = {};
         var image = new Image();
 
@@ -35,6 +37,37 @@
                 var sprite = this.spriteCollection.sprites[Math.floor(timespam % this.spriteCollection.sprites.length)];
                 ctx.drawImage(image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, sprite.width, sprite.height);
             }
+
+            update(delta) {
+                return;
+            }
+
+            getWidth() {
+                return this.spriteCollection.sprites[0].width;
+            }
+
+            getHeight() {
+                return this.spriteCollection.sprites[0].height;
+            }
+        }
+
+        class Hero extends GameObject {
+
+            static speed = 1;
+
+            constructor(spriteCollection, x, y) {
+                super(spriteCollection, x, y);
+                this.direction = 0;
+            }
+
+            update(delta) {
+
+                if (this.direction == 'a' && this.x > 1) {
+                    this.x -= Hero.speed * delta;
+                } else if (this.direction == 'd' && this.x + this.getWidth() < canvas.width) {
+                    this.x += Hero.speed * delta;
+                }
+            }
         }
 
         function loadSpritesMarkup() {
@@ -47,13 +80,12 @@
             image.src = "res/frames.png";
             image.onload = () => {
                 loadSpritesMarkup().then(res => {
-                    var a = sprites['hero'];
-                    gameObjects.push(new GameObject(sprites['hero'], 0, 0));
-                    gameObjects.push(new GameObject(sprites['enemy1'], 100, 100));
-                    gameObjects.push(new GameObject(sprites['enemy2'], 300, 100));
-                    gameObjects.push(new GameObject(sprites['enemy3'], 300, 200));
-                    gameObjects.push(new GameObject(sprites['enemy4'], 300, 300));
+                    let heroSprites = sprites['hero'];
+                    hero = new Hero(heroSprites, canvas.width / 2, canvas.height - heroSprites.sprites[0].height);
+                    gameObjects.push(hero);
 
+                    document.onkeydown = ev => handleKeyPress(ev, true);
+                    document.onkeyup = ev => handleKeyPress(ev, false);
 
                     requestAnimationFrame(gameLoop);
                 });
@@ -62,6 +94,10 @@
 
         function gameLoop(timeStamp) {
 
+            let delta = timeStamp - oldTimeStamp;
+            oldTimeStamp = timeStamp;
+
+            update(delta);
             draw(timeStamp);
             requestAnimationFrame(gameLoop);
         }
@@ -71,6 +107,22 @@
             gameObjects.forEach(el => {
                 el.draw(timeStamp / 500);
             });
+        }
+
+        function update(delta) {
+            gameObjects.forEach(el => {
+                el.update(delta);
+            });
+        }
+
+        function handleKeyPress(ev, value) {
+            if (ev.key == 'a' || ev.key == 'd') {
+                if (value) {
+                    hero.direction = ev.key;
+                } else if (hero.direction == ev.key) {
+                    hero.direction = '';
+                }
+            }
         }
 
         init();
