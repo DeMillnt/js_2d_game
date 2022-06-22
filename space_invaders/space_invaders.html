@@ -54,10 +54,13 @@
         class Hero extends GameObject {
 
             static speed = 1;
+            static reloadTime = 100;
 
             constructor(spriteCollection, x, y) {
                 super(spriteCollection, x, y);
                 this.direction = 0;
+                this.isShooting = false;
+                this.lastShootTimeStamp = 0;
             }
 
             update(delta) {
@@ -67,6 +70,42 @@
                 } else if (this.direction == 'd' && this.x + this.getWidth() < canvas.width) {
                     this.x += Hero.speed * delta;
                 }
+
+                if (this.isShooting) {
+                    this.shoot();
+                }
+            }
+
+            shoot() {
+                let currentTimeStamp = Date.now();
+                if (currentTimeStamp - this.lastShootTimeStamp > Hero.reloadTime) {
+                    let x = this.x + this.getWidth() / 2;
+                    let y = this.y;
+
+                    gameObjects.push(new Bullet(x, y, -1));
+
+                    this.lastShootTimeStamp = currentTimeStamp;
+                }
+
+            }
+        }
+
+        class Bullet extends GameObject {
+            static speed = 1;
+            static width = 3;
+            static height = 10;
+
+            constructor(x, y, yDirection) {
+                super({}, x, y);
+                this.yDirection = yDirection;
+            }
+
+            draw(timeStamp) {
+                ctx.rect(this.x, this.y, Bullet.width, Bullet.height);
+            }
+
+            update(delta) {
+                this.y += this.yDirection * Bullet.speed * delta;
             }
         }
 
@@ -103,10 +142,12 @@
         }
 
         function draw(timeStamp) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
             gameObjects.forEach(el => {
                 el.draw(timeStamp / 500);
             });
+            ctx.fill();
         }
 
         function update(delta) {
@@ -122,6 +163,8 @@
                 } else if (hero.direction == ev.key) {
                     hero.direction = '';
                 }
+            } else if (ev.key == ' ') {
+                hero.isShooting = value;
             }
         }
 
