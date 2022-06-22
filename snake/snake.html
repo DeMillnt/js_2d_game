@@ -30,10 +30,33 @@
             Right: "d"
         }
 
-        class SnakeCell {
+        class Cell {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
+            }
+        }
+
+        class Apple extends Cell {
+            constructor() {
+                super(0, 0);
+                this.seed();
+            }
+
+            seed() {
+                let freeCells = [];
+                for (let row = 0; row < rowCount; row++) {
+                    for (let col = 0; col < colCount; col++) {
+                        if (snake.snakeCells.some(el => el.x == col && el.y == row)) {
+                            continue;
+                        }
+                        freeCells.push(new Cell(col, row));
+                    }
+                }
+
+                let cell = freeCells[Math.floor(Math.random() * freeCells.length)];
+                this.x = cell.x;
+                this.y = cell.y;
             }
         }
 
@@ -44,7 +67,7 @@
                 this.snakeCells = [];
 
                 for (let i = 0; i < 3; i++) {
-                    this.snakeCells.push(new SnakeCell(i, 1));
+                    this.snakeCells.push(new Cell(i, 1));
                 }
             }
 
@@ -89,6 +112,7 @@
         var cellOffset = 1;
 
         var snake = new Snake();
+        var apple = new Apple();
 
         function init() {
             document.addEventListener("keydown", (e) => {
@@ -116,13 +140,14 @@
             ctx.beginPath();
             drawMap();
             drawSnake();
+            drawApple();
             ctx.fill();
         }
 
         function drawMap() {
             for (let row = 0; row < rowCount; row++) {
                 for (let col = 0; col < colCount; col++) {
-                    ctx.fillStyle = "brown";
+                    ctx.fillStyle = "blue";
                     drawCell(col, row);
                 }
             }
@@ -133,6 +158,11 @@
                 ctx.fillStyle = "green";
                 drawCell(el.x, el.y);
             });
+        }
+
+        function drawApple() {
+            ctx.fillStyle = "red";
+            drawCell(apple.x, apple.y);
         }
 
         function drawCell(x, y) {
