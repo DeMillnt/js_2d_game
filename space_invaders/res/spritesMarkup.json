@@ -22,15 +22,15 @@
     "enemy2": {
         "sprites": [
             {
-                "x": 32,
+                "x": 8,
                 "y": 8,
-                "width": 40,
+                "width": 64,
                 "height": 64
             },
             {
-                "x": 32,
+                "x": 8,
                 "y": 80,
-                "width": 40,
+                "width": 64,
                 "height": 64
             }
         ]
@@ -55,7 +55,13 @@
         "sprites": [
             {
                 "x": 184,
-                "y": 160,
+                "y": 8,
+                "width": 271,
+                "height": 70
+            },
+            {
+                "x": 184,
+                "y": 80,
                 "width": 271,
                 "height": 70
             }

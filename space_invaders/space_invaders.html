@@ -22,23 +22,7 @@
         var ctx = canvas.getContext("2d");
         var gameObjects = [];
         var sprites = {};
-
         var image = new Image();
-
-        class Sprite {
-            constructor(x, y, width, height) {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-            }
-        }
-
-        class SpriteCollection {
-            constructor(sprites) {
-                this.sprites = sprites;
-            }
-        }
 
         class GameObject {
             constructor(spriteCollection, x, y) {
@@ -48,7 +32,7 @@
             }
 
             draw(timespam) {
-                var sprite = this.spriteCollection.sprites[timespam % this.spriteCollection.sprites.length];
+                var sprite = this.spriteCollection.sprites[Math.floor(timespam % this.spriteCollection.sprites.length)];
                 ctx.drawImage(image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, sprite.width, sprite.height);
             }
         }
@@ -63,12 +47,30 @@
             image.src = "res/frames.png";
             image.onload = () => {
                 loadSpritesMarkup().then(res => {
+                    var a = sprites['hero'];
                     gameObjects.push(new GameObject(sprites['hero'], 0, 0));
                     gameObjects.push(new GameObject(sprites['enemy1'], 100, 100));
-                    gameObjects[0].draw(0);
-                    gameObjects[1].draw(0);
+                    gameObjects.push(new GameObject(sprites['enemy2'], 300, 100));
+                    gameObjects.push(new GameObject(sprites['enemy3'], 300, 200));
+                    gameObjects.push(new GameObject(sprites['enemy4'], 300, 300));
+
+
+                    requestAnimationFrame(gameLoop);
                 });
             }
+        }
+
+        function gameLoop(timeStamp) {
+
+            draw(timeStamp);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function draw(timeStamp) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            gameObjects.forEach(el => {
+                el.draw(timeStamp / 500);
+            });
         }
 
         init();
