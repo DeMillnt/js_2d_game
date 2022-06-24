@@ -1,5 +1,4 @@
 import { DrawableContext } from "./drawableContext";
-import { IDrawable } from "../interfaces/iDrawable";
 import { GameObject } from "./gameObject";
 import { Texture } from "./texture";
 import { Position } from "../dto/position";
@@ -7,7 +6,7 @@ import { Position } from "../dto/position";
 export class Tile extends GameObject {
     constructor(
         public texture: Texture,
-        position: Position) {
+        position: Position = Position.default()) {
         super(position);
     }
 

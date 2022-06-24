@@ -4,7 +4,7 @@ import { IDrawable } from "./interfaces/iDrawable";
 
 export class Level implements IDrawable {
     constructor(private gameObjects: GameObject[]) {
-
+        
     }
 
     draw(context: DrawableContext): void {

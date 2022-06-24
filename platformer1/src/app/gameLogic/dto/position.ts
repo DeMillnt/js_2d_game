@@ -4,4 +4,8 @@ export class Position {
         public y: number,
         public width: number,
         public height: number) { }
+
+    static default(): Position {
+        return new Position(0, 0, 0, 0);
+    }
 }
