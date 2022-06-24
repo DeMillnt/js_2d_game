@@ -1,5 +1,4 @@
 import { DrawableContext } from "./drawableContext";
-import { IDrawable } from "../interfaces/iDrawable";
 import { GameObject } from "./gameObject";
 import { Texture } from "./texture";
 import { Position } from "../dto/position";
