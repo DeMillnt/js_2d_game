@@ -8,10 +8,13 @@ export class AnimatedTile extends GameObject {
         public textures: Texture[],
         position: Position) {
         super(position);
+        for (let i = textures.length - 1; i >= 0; i--) {
+            this.textures.push(textures[i]);
+        }
     }
 
     override draw(context: DrawableContext): void {
-        let texture = this.textures[context.timeStamp % this.textures.length];
+        let texture = this.textures[Math.floor(context.timeStamp / 100 % this.textures.length)];
         context.drawImage(texture, this.position);
     }
 }

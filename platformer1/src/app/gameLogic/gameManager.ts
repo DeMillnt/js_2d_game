@@ -32,6 +32,7 @@ export class GameManager {
 
     draw(timeStamp: number) {
         let context = new DrawableContext(this.canvas, this.ctx, timeStamp);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.levelManager.draw(context);
     }
 

@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Subject } from "rxjs";
 import { Position } from "./dto/position";
 import { TextureEnum } from "./dto/TextureEnum";
+import { AnimatedTile } from "./gameObjects/animatedTile";
 import { GameObject } from "./gameObjects/gameObject";
 import { Texture } from "./gameObjects/texture";
 import { Tile } from "./gameObjects/tile";
@@ -53,7 +54,7 @@ export class ResourceManager {
         res.SubTexture.forEach(t => {
             let p = new Position(t.x, t.y, t.width, t.height);
             let image = this.images?.get(url.replace(".json", ".png")) ?? new Image();
-            this.textures.push(new Texture(t.id, t.name, p, image, textureType));
+            this.textures.push(new Texture(Number(t.id), t.name, p, image, textureType));
         });
     }
 
@@ -68,12 +69,14 @@ export class ResourceManager {
 
                 ids.forEach(id => {
                     let gameObject = this.getGameObject(id);
-                    gameObject.position.x = xCoor;
-                    gameObject.position.y = yCoor;
                     if (gameObject) {
-                        res.push(gameObject);
+                        gameObject.position.x = xCoor;
+                        gameObject.position.y = yCoor;
+                        if (gameObject) {
+                            res.push(gameObject);
+                        }
                     }
-                })
+                });
             });
         });
 
@@ -112,18 +115,24 @@ export class ResourceManager {
         });
     }
 
-    private getGameObject(id: number): GameObject {
+    private getGameObject(id: number): GameObject | null {
         let textures = this.getTexturesById(id);
-        return new Tile(textures[0], new Position(0, 0, textures[0].position.width, textures[0].position.height));
+        if (textures.length == 0) {
+            return null;
+        }
+        else if (textures.length == 1) {
+            return new Tile(textures[0], new Position(0, 0, textures[0].position.width, textures[0].position.height));
+        } else {
+            return new AnimatedTile(textures, new Position(0, 0, textures[0].position.width, textures[0].position.height));
+        }
+
+
     }
 
     private getTexturesById(id: number): Texture[] {
         let textures = this.textures.filter(t => t.id == id);
-        this.textures = textures.concat(this.animatedTextures?.get(id) ?? []);
-
-        if(textures.length == 0) {
-            textures.push(Texture.default());
-        }
+        let a = this.animatedTextures.get(id);
+        textures = textures.concat(this.animatedTextures?.get(id) ?? []);
 
         return textures;
     }
