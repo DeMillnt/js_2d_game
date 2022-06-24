@@ -4,7 +4,7 @@ import { GameObject } from "./gameObject";
 import { Texture } from "./texture";
 import { Position } from "../dto/position";
 
-export class Tile extends GameObject implements IDrawable {
+export class Tile extends GameObject {
     constructor(
         public texture: Texture,
         position: Position) {
