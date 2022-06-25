@@ -23,19 +23,7 @@
         var ctx = canvas.getContext("2d");
         var lastUpdateTimeStamp = 0;
 
-        const Direction = {
-            Up: "w",
-            Down: "s",
-            Left: "a",
-            Right: "d"
-        }
 
-        const InvalidDirection = {
-            "w": "s",
-            "s": "w",
-            "a": "d",
-            "d": "a"
-        }
 
         class Cell {
             constructor(x, y) {
@@ -67,14 +55,12 @@
             }
         }
 
+
         class Snake {
-
             constructor() {
-                this.initSnake();
-            }
+                this.state = this.up;
+                this.direction = { x: 0, y: 1 }
 
-            initSnake() {
-                this.direction = Direction.Down;
                 this.snakeCells = [];
 
                 for (let i = 0; i < 3; i++) {
@@ -82,36 +68,45 @@
                 }
             }
 
+            up(head) {
+                return { x: head.x, y: head.y - 1 };
+            }
+
+            down(head) {
+                return { x: head.x, y: head.y + 1 };
+            }
+
+            left(head) {
+                return { x: head.x - 1, y: head.y };
+            }
+
+            right(head) {
+                return { x: head.x + 1, y: head.y };
+            }
+
+            overflow(value, max) {
+                if (value < 0) {
+                    return max;
+                }
+
+                if (value > max) {
+                    return 0;
+                }
+
+                return value;
+            }
+
+            correct(head) {
+                return {
+                    x: this.overflow(head.x, colCount),
+                    y: this.overflow(head.y, rowCount)
+                }
+            }
+
             move() {
                 let tail = this.snakeCells.pop();
-                let head = { ...this.snakeCells[0] };
 
-                switch (this.direction) {
-                    case Direction.Up:
-                        head.y--;
-                        if (head.y == -1) {
-                            head.y = rowCount - 1;
-                        }
-                        break;
-                    case Direction.Down:
-                        head.y++;
-                        if (head.y == rowCount) {
-                            head.y = 0;
-                        }
-                        break;
-                    case Direction.Left:
-                        head.x--;
-                        if (head.x == -1) {
-                            head.x = colCount - 1;
-                        }
-                        break;
-                    case Direction.Right:
-                        head.x++;
-                        if (head.x == colCount) {
-                            head.x = 0;
-                        }
-                        break;
-                }
+                let head = this.correct(this.state({ ...this.snakeCells[0] }));
 
                 this.snakeCells.unshift(head);
 
@@ -149,8 +144,22 @@
 
         function init() {
             document.addEventListener("keydown", (e) => {
-                if (Object.keys(InvalidDirection).some(el => e.key == el) && InvalidDirection[e.key] != snake.direction) {
-                    snake.direction = e.key;
+                const InvalidDirection = {
+                    "w": snake.down,
+                    "s": snake.up,
+                    "a": snake.right,
+                    "d": snake.left,
+                }
+
+                if (Object.keys(InvalidDirection).some(el => e.key == el) && InvalidDirection[e.key] != snake.state) {
+                    const directions = {
+                        "w": snake.up,
+                        "s": snake.down,
+                        "a": snake.left,
+                        "d": snake.right
+                    };
+
+                    snake.state = directions[e.key];
                 }
             });
         }
